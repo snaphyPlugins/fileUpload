@@ -25,7 +25,9 @@
     "headerHook": [],
     "footerHook":[]
   },
+  "ImageDataSource": "Image",
   "databases": {
+      "User" : "Employee"
   },
   "activate": true,
   "services": {},
@@ -36,6 +38,6 @@
     "url": ""
   },
   "devDependencies": {
-   
+
   }
 }

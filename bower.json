@@ -2,11 +2,8 @@
   "name": "fileUpload",
   "version": "1.0.0",
   "dependencies": {
-  
   },
-  "devDependencies": {
-    
-  },
+  "devDependencies": {},
   "appPath": "client",
   "moduleName": "fileUpload"
 }
