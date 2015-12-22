@@ -8,36 +8,42 @@
   "routeExposure": "/fileUpload",
   "staticFiles": {
     "css": {
-        "exampleCss" : "/fileUpload/style/example.css"
-      },
+      "exampleCss": "/fileUpload/style/example.css"
+    },
     "js": {
       "fileUploadRoute": "/fileUpload/scripts/routes/fileUpload.js",
       "fileUploadController": "/fileUpload/scripts/controllers/fileUpload.js"
     },
-    "moduleDependencies":{
-
-    },
+    "moduleDependencies": {},
     "settings": "/fileUpload/settings.js"
   },
   "bodystructure": {
     "asidebarHook": [],
     "sidebarHook": [],
     "headerHook": [],
-    "footerHook":[]
+    "footerHook": []
   },
-  "ImageDataSource": "Image",
+  "fileProperties": {
+    "fileDataSource": "Image",
+    "fileType": "image",
+    "containerModel": "container",
+    "imageProp":{
+        "createThumb": true,
+        "thumbContainer": "thumb"
+    }
+  },
   "databases": {
-      "User" : "Employee"
+    "User": "Employee"
   },
   "activate": true,
   "services": {},
-  "dependencies": {},
+  "dependencies": {
+    "quickthumb": "0.0.12"
+  },
   "optionalDependencies": {},
   "repository": {
     "type": "",
     "url": ""
   },
-  "devDependencies": {
-
-  }
+  "devDependencies": {}
 }
