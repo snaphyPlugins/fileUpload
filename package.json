@@ -27,6 +27,7 @@
     "fileDataSource": "Image",
     "fileType": "image",
     "containerModel": "container",
+    "createInitContainer":["recipes"],
     "imageProp":{
         "createThumb": true,
         "thumbContainer": "thumb"
