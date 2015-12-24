@@ -324,7 +324,6 @@ module.exports = function( server, databaseObj, helper, packageObj) {
 				//since the data is getting delete from backend so beforeRemote will not work here..
 				var ImageProp     =  packageObj.fileProperties.imageProp;
 				var thumbNailName =  ImageProp.thumbContainer;
-				console.log(thumbNailName);
 				if(thumbNailName){
 					try{
 						containerDb.removeFile(thumbNailName, file, function(err, value){
