@@ -136,20 +136,39 @@ module.exports = function(server, databaseObj, helper, packageObj) {
                 console.log("Storage folder created successfully.");
             }
 
-            //Now create some container on Initialize..
-            var containersList = packageObj.fileProperties.createInitContainer;
-            if (packageObj.fileProperties.createInitContainer) {
-                containersList.forEach(function(containerName, index) {
-                    var containerPath = path.join(rootFolder, containerName);
-                    //Temp path directory..create if directory not present.
-                    if (!fs.existsSync(containerPath)) {
-                        fs.mkdirSync(containerPath);
-                        console.log("Storage container " + containerPath + " created successfully.");
-                    }
-                });
-            }
         }
+
+
+        
+        //Now create some container on Initialize..
+        var containersList = packageObj.fileProperties.createInitContainer;
+        var dataSource = app.models[packageObj.fileProperties.containerModel];
+        if (packageObj.fileProperties.createInitContainer) {
+            containersList.forEach(function(containerName) {
+                //console.log(dataSource);
+                //check if the container exists..
+                createContainer(app, containerName);
+            });
+        }
+
     };
+
+
+    var createContainer = function(app, containerName){
+        var FileDataSource = packageObj.fileProperties.fileDataSource;
+        var containerDb = app.dataSources[FileDataSource];
+        //Creating container for the given customer..
+        containerDb.DataAccessObject.createContainer({
+            name: containerName
+        }, function(err, containerObj){
+            if(err){
+                console.error("Cannot create container ");
+                return false;
+            }
+            console.log("Container successfully created");
+        });
+    };
+
 
 
     var modifyImageName = function() {

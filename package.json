@@ -27,10 +27,10 @@
     "fileDataSource": "Image",
     "fileType": "image",
     "containerModel": "container",
-    "createInitContainer":["recipes", "profile"],
+    "createInitContainer":["gruberr-recipes", "gruberr-profile"],
     "imageProp":{
         "createThumb": true,
-        "thumbContainer": "thumb"
+        "thumbContainer": "gruberr-thumb"
     }
   },
   "databases": {
