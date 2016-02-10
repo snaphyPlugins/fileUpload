@@ -1,50 +1,50 @@
 {
-  "name": "fileUpload",
-  "version": "1.0.0",
-  "main": "backend",
-  "description": "A light weight plugin for uploading files based on ng-file-upload",
-  "author": "Robins Gupta",
-  "authorEmail": "robinskumar73@gmail.com",
-  "routeExposure": "/fileUpload",
-  "staticFiles": {
-    "css": {
-      "exampleCss": "/fileUpload/style/example.css"
+    "name": "fileUpload",
+    "version": "1.0.0",
+    "main": "backend",
+    "description": "A light weight plugin for uploading files based on ng-file-upload",
+    "author": "Robins Gupta",
+    "authorEmail": "robinskumar73@gmail.com",
+    "routeExposure": "/fileUpload",
+    "staticFiles": {
+        "css": {
+            "exampleCss": "/fileUpload/style/example.css"
+        },
+        "js": {
+            "fileUploadRoute": "/fileUpload/scripts/routes/fileUpload.js",
+            "fileUploadController": "/fileUpload/scripts/controllers/fileUpload.js"
+        },
+        "moduleDependencies": {},
+        "settings": "/fileUpload/settings.js"
     },
-    "js": {
-      "fileUploadRoute": "/fileUpload/scripts/routes/fileUpload.js",
-      "fileUploadController": "/fileUpload/scripts/controllers/fileUpload.js"
+    "bodystructure": {
+        "asidebarHook": [],
+        "sidebarHook": [],
+        "headerHook": [],
+        "footerHook": []
     },
-    "moduleDependencies": {},
-    "settings": "/fileUpload/settings.js"
-  },
-  "bodystructure": {
-    "asidebarHook": [],
-    "sidebarHook": [],
-    "headerHook": [],
-    "footerHook": []
-  },
-  "fileProperties": {
-    "fileDataSource": "Image",
-    "fileType": "image",
-    "containerModel": "container",
-    "createInitContainer":["gruberr-recipes", "gruberr-profile"],
-    "imageProp":{
-        "createThumb": true,
-        "thumbContainer": "gruberr-thumb"
-    }
-  },
-  "databases": {
-    "User": "Employee"
-  },
-  "activate": true,
-  "services": {},
-  "dependencies": {
-    "quickthumb": "0.0.12"
-  },
-  "optionalDependencies": {},
-  "repository": {
-    "type": "",
-    "url": ""
-  },
-  "devDependencies": {}
+    "fileProperties": {
+        "fileDataSource": "Image",
+        "fileType": "image",
+        "containerModel": "container",
+        "createInitContainer": ["gruberr-recipes", "gruberr-profile"],
+        "imageProp": {
+            "createThumb": true,
+            "thumbContainer": "gruberr-thumb"
+        }
+    },
+    "databases": {
+        "User": "Employee"
+    },
+    "activate": true,
+    "services": {},
+    "dependencies": {
+        "quickthumb": "0.0.12"
+    },
+    "optionalDependencies": {},
+    "repository": {
+        "type": "",
+        "url": ""
+    },
+    "devDependencies": {}
 }

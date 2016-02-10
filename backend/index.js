@@ -8,6 +8,7 @@ module.exports = function(server, databaseObj, helper, packageObj) {
     var qt = require('quickthumb');
     var path = require('path');
     var fs = require('fs');
+    var Promise = require("bluebird");
 
     /**
      * Here server is the main app object
@@ -139,7 +140,7 @@ module.exports = function(server, databaseObj, helper, packageObj) {
         }
 
 
-        
+
         //Now create some container on Initialize..
         var containersList = packageObj.fileProperties.createInitContainer;
         var dataSource = app.models[packageObj.fileProperties.containerModel];
@@ -154,14 +155,14 @@ module.exports = function(server, databaseObj, helper, packageObj) {
     };
 
 
-    var createContainer = function(app, containerName){
+    var createContainer = function(app, containerName) {
         var FileDataSource = packageObj.fileProperties.fileDataSource;
         var containerDb = app.dataSources[FileDataSource];
         //Creating container for the given customer..
         containerDb.DataAccessObject.createContainer({
             name: containerName
-        }, function(err, containerObj){
-            if(err){
+        }, function(err, containerObj) {
+            if (err) {
                 console.error("Cannot create container ");
                 return false;
             }
@@ -269,12 +270,92 @@ module.exports = function(server, databaseObj, helper, packageObj) {
                                 console.log("Binded to hook for delete " + modelName);
                                 //Add hook..
                                 addOnDeleleteHook(app, modelObj, property, type, packageObj);
+
+                            }
+                            //Now if image is set to delete on update..or an image..
+                            if (template.templateOptions.onImageUpdate) {
+                                if (template.templateOptions.onImageUpdate.deletePrevious) {
+                                    //Binding image delete hook on update..
+                                    console.log("Binding image hook to delete on update..");
+                                    deleteOnUpdate(app, modelObj, property, type, packageObj);
+                                }
                             }
                         }
                     }
                 }
             }
         }
+    };
+
+
+    //delete previous image on update of new image..
+    var deleteOnUpdate = function(app, modelObj, propertyName, type, packageObj) {
+        modelObj.observe("persist", function(ctx, next) {
+            console.log("I am here before save..");
+            var modelProperties = modelObj.definition.rawProperties;
+            var containerModel = modelProperties[propertyName].template.templateOptions.containerModel;
+            var containerDb = app.models[containerModel];
+            if (!ctx.isNewInstance) {
+                //First fetch the previous data..
+                if (ctx.currentInstance) {
+                    //find model based on id..
+                    modelObj.find({
+                        where: {
+                            id: ctx.currentInstance.id
+                        }
+                    }, function(err, data) {
+                        if (err) {
+                            console.error("Error finding model when delete image on update.");
+                            //next();
+                        } else {
+                            if(data.length){
+                                for(var j = 0; j < data.length; j++){
+                                    var object = data[j];
+                                    var ImageArrOrObj = object[propertyName];
+                                    if (ImageArrOrObj) {
+                                        var fileName;
+                                        var containerName;
+                                        if (type === "object") {
+                                            //first check if the image is updated or not updated..
+
+                                            fileName = ImageArrOrObj.name;
+                                            containerName = ImageArrOrObj.container;
+                                            if(ctx.currentInstance[propertyName].name !== fileName){
+                                                //remove the file..
+                                                destroyImage(containerDb, fileName, containerName);
+                                                //next();
+                                            }else{
+
+
+                                            }
+                                        } else if (type === 'array') {
+                                            for(var i=0; i< ImageArrOrObj.length; i++){
+                                                var ImageDetails = ImageArrOrObj[i];
+                                                fileName = ImageDetails.name;
+                                                containerName = ImageDetails.container;
+                                                if(ctx.currentInstance[propertyName].name !== fileName){
+                                                    //remove the file..
+                                                    destroyImage(containerDb, fileName, containerName);
+                                                }
+                                            }
+                                            //next();
+                                        }
+                                    }
+                                } //end of for loop..
+                                next();
+                            }else{
+                                next();
+                            }
+                        }
+                    });
+                }else{
+                    next();
+                }
+
+            } else {
+                next();
+            }
+        });
     };
 
 
