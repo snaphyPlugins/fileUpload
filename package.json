@@ -28,6 +28,7 @@
       "fileModel": "AmazonImage",
       "containerModel": "container",
       "fileDataSource": "Image",
+      "defaultContainer": "gruberr-recipes",
       "createInitContainer": [
         "gruberr-recipes",
         "gruberr-profile"
@@ -64,6 +65,8 @@
   "activate": true,
   "services": {},
   "dependencies": {
+    "formidable": "^1.0.17",
+    "imager": "^0.4.0",
     "quickthumb": "0.0.12"
   },
   "optionalDependencies": {},
