@@ -9,6 +9,7 @@ module.exports = function(server, databaseObj, helper, packageObj) {
     var path = require('path');
     var fs = require('fs');
     var Promise = require("bluebird");
+    var AmazonImage = require('./amazonS3');
 
     /**
      * Here server is the main app object
@@ -29,6 +30,8 @@ module.exports = function(server, databaseObj, helper, packageObj) {
         addContainerOnUserCreate();
         modifyImageName();
         removeImageOnDelete();
+        //Initialize amazon Image library..
+        AmazonImage.init(server, databaseObj, helper, packageObj);
     };
 
 
@@ -46,16 +49,6 @@ module.exports = function(server, databaseObj, helper, packageObj) {
                 ctx.res.status('401').send('Permission not allowed.');
                 return null;
             }
-
-            //console.log(ctx.req.params);
-
-
-
-            /**
-             * 1. Add the ACL at containers for security..TO ALLOW ONLY ADMIN AND ALSO CREATE SOME DYNAMIC ROLES BASED ON USER CONTAINER RESTRICTION.
-             */
-
-            //call the next middleware..
             next();
         }); //beforeRemote
 
@@ -67,30 +60,35 @@ module.exports = function(server, databaseObj, helper, packageObj) {
             var ImageProp = packageObj.fileProperties.imageProp;
             var serverFolder = helper.getServerFolder();
 
-            if (settings.provider === 'filesystem') {
-                var rootFolder = settings.root;
-                var file = res.result.files.file[0];
-                var thumbDir = path.join(rootFolder, ImageProp.thumbContainer);
+                if (settings.provider === 'filesystem') {
+                    var rootFolder = settings.root;
+                    var file = res.result.files.file[0];
+                    var thumbDir = path.join(rootFolder, ImageProp.thumbContainer);
 
-                if (ImageProp) {
-                    if (ImageProp.createThumb) {
+                    if (ImageProp) {
+                        if (ImageProp.createThumb) {
 
-                        var file_path = path.join(rootFolder, file.container, file.name);
-                        var file_thumb_path = path.join(thumbDir, file.name);
+                            var file_path = path.join(rootFolder, file.container, file.name);
+                            var file_thumb_path = path.join(thumbDir, file.name);
 
-                        //Temp path directory..create if directory not present.
-                        if (!fs.existsSync(thumbDir)) {
-                            fs.mkdirSync(thumbDir);
+                            //Temp path directory..create if directory not present.
+                            if (!fs.existsSync(thumbDir)) {
+                                fs.mkdirSync(thumbDir);
+                            }
+
+                            qt.convert({
+                                src: file_path,
+                                dst: file_thumb_path,
+                                width: 200
+                            }, function(err, path) {});
                         }
+                    } //if ImageProp
+                }
+                else if (settings.provider === "amazon") {
 
-                        qt.convert({
-                            src: file_path,
-                            dst: file_thumb_path,
-                            width: 200
-                        }, function(err, path) {});
-                    }
-                } //if ImageProp
-            } //if filesystem
+                }
+
+            
             //call the next middleware..
             next();
         });
