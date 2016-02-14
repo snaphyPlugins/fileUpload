@@ -5,8 +5,8 @@ module.exports = {
             resize: {
                 thumb: "300x300",
                 original: "100%",
-                medium: "60%",
-                small: "40%"
+                medium: "80%",
+                small: "400"
             }
         }
     },

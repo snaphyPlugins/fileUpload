@@ -14,6 +14,7 @@ var init = function(server, databaseObj, helper, packageObj) {
     var configList = packageObj.config;
     //Now add generate url method..
     generateSignedUrl(server, databaseObj, helper, packageObj);
+    generateUnsignedUrl(server, databaseObj, helper, packageObj);
     configList.forEach(function(config) {
         loadConfig(config, server, databaseObj, helper, packageObj);
 
@@ -101,58 +102,129 @@ var attachUploadMethod = function(app, persistentModel, containerModel, config, 
 };
 
 
-
-//Add get url methods for the basic models..also generateSignedApk for cdn containers automatically..
-var generateSignedUrl = function(server, databaseObj, helper, packageObj){
+var generateUnsignedUrl = function(server, databaseObj, helper, packageObj) {
     var app = server;
     var FileModel = packageObj.fileDefaultModel;
-    var FileModel = app.models[FileModel];
+    FileModel = app.models[FileModel];
     //Options accepts suffix or prefix like -original, -medium, -thumb, -original
-    FileModel.getUrl = function(container, file, options, callback){
+    FileModel.getUnsignedUrl = function(container, file, options, callback) {
         var app = this.app;
-        var signedUrl = "";
-        try{
-            if(packageObj.cdn){
-                for( var provider in packageObj.cdn){
-                    if(packageObj.cdn.hasOwnProperty(provider)){
+        var unSignedUrl = "";
+        try {
+            if (packageObj.cdn) {
+                for (var provider in packageObj.cdn) {
+                    if (packageObj.cdn.hasOwnProperty(provider)) {
                         var givedContainer = packageObj.cdn[provider].container;
-                        if(givedContainer === container){
-                            if(provider === "amazon"){
-                                signedUrl = generateAmazonSignedUrl(app, file, options, packageObj.cdn[provider].keyPairId, packageObj.cdn[provider].url);
-                            }else if (provider === "rackspace") {
+                        if (givedContainer === container) {
+                            if (provider === "amazon") {
+                                if(options){
+                                    if (options.type === "prefix") {
+                                        unSignedUrl = packageObj.cdn[provider].url +"/" + options.value + file;
+                                    }else if(options.type === "suffix"){
+                                        unSignedUrl = packageObj.cdn[provider].url +"/"  + file + options.value;
+                                    }else{
+                                        unSignedUrl = packageObj.cdn[provider].url +"/"  + file;
+                                    }
+                                }else{
+                                    unSignedUrl = packageObj.cdn[provider].url +"/"  + file;
+                                }
+
+
+                            } else if (provider === "rackspace") {
                                 //TODO DO IT LATER..
                                 //
                                 //
-                            }
-                            else{
+                            } else {
                                 //do nothing...
 
                             }
 
                         }
                     }
-                }//for loop.
+                } //for loop.
             }
-        }
-        catch(err){
+        } catch (err) {
             //return error..
             return callback(err);
         }
 
         var defaultUrl;
 
-        if(options){
-            if(options.type === "prefix"){
-                defaultUrl  = "/api/containers/" + container +  "/download/" + options.value + file;
-            }else if (options.type === "suffix") {
-                defaultUrl  = "/api/containers/" + container +  "/download/" +  file + options.value;
-            }else{
+        if (options) {
+            if (options.type === "prefix") {
+                defaultUrl = "/api/containers/" + container + "/download/" + options.value + file;
+            } else if (options.type === "suffix") {
+                defaultUrl = "/api/containers/" + container + "/download/" + file + options.value;
+            } else {
                 //else return normal url ..
-                defaultUrl =  "/api/containers/" + container +  "/download/" + file;
+                defaultUrl = "/api/containers/" + container + "/download/" + file;
             }
-        }else {
+        } else {
             //else return normal url ..
-            defaultUrl =  "/api/containers/" + container +  "/download/" + file;
+            defaultUrl = "/api/containers/" + container + "/download/" + file;
+        }
+
+
+
+        return callback(null, {
+            defaultUrl: defaultUrl,
+            unSignedUrl: unSignedUrl
+        });
+    };
+}
+
+
+
+
+//Add get url methods for the basic models..also generateSignedApk for cdn containers automatically..
+var generateSignedUrl = function(server, databaseObj, helper, packageObj) {
+    var app = server;
+    var FileModel = packageObj.fileDefaultModel;
+    FileModel = app.models[FileModel];
+    //Options accepts suffix or prefix like -original, -medium, -thumb, -original
+    FileModel.getUrl = function(container, file, options, callback) {
+        var app = this.app;
+        var signedUrl = "";
+        try {
+            if (packageObj.cdn) {
+                for (var provider in packageObj.cdn) {
+                    if (packageObj.cdn.hasOwnProperty(provider)) {
+                        var givedContainer = packageObj.cdn[provider].container;
+                        if (givedContainer === container) {
+                            if (provider === "amazon") {
+                                signedUrl = generateAmazonSignedUrl(app, file, options, packageObj.cdn[provider].keyPairId, packageObj.cdn[provider].url);
+                            } else if (provider === "rackspace") {
+                                //TODO DO IT LATER..
+                                //
+                                //
+                            } else {
+                                //do nothing...
+
+                            }
+
+                        }
+                    }
+                } //for loop.
+            }
+        } catch (err) {
+            //return error..
+            return callback(err);
+        }
+
+        var defaultUrl;
+
+        if (options) {
+            if (options.type === "prefix") {
+                defaultUrl = "/api/containers/" + container + "/download/" + options.value + file;
+            } else if (options.type === "suffix") {
+                defaultUrl = "/api/containers/" + container + "/download/" + file + options.value;
+            } else {
+                //else return normal url ..
+                defaultUrl = "/api/containers/" + container + "/download/" + file;
+            }
+        } else {
+            //else return normal url ..
+            defaultUrl = "/api/containers/" + container + "/download/" + file;
         }
 
 
@@ -165,9 +237,18 @@ var generateSignedUrl = function(server, databaseObj, helper, packageObj){
 
 
     FileModel.remoteMethod(
-        'getUrl',{
+        'getUrl', {
             'description': "Get download url for the file. Also generates signed url automatically if provided.",
-            accepts: [{arg: 'container', type: 'string'}, {arg: 'file', type: 'string'}, {arg: 'options', type: "object"}],
+            accepts: [{
+                arg: 'container',
+                type: 'string'
+            }, {
+                arg: 'file',
+                type: 'string'
+            }, {
+                arg: 'options',
+                type: "object"
+            }],
             returns: {
                 arg: 'url',
                 type: 'object',
@@ -189,19 +270,24 @@ var generateSignedUrl = function(server, databaseObj, helper, packageObj){
  * @param  {[type]} url       [description]
  * @return {[type]}           [description]
  */
-var generateAmazonSignedUrl = function(app, file, options, keypairId, url){
-    var cfOptions = {keypairId: keypairId, privateKeyPath: PRIVATE_KEY_PATH};
+var generateAmazonSignedUrl = function(app, file, options, keypairId, url) {
+    var time = (new Date().getTime() + (1000 * 15 * 60 * 60));
+    var cfOptions = {
+        keypairId: keypairId,
+        privateKeyPath: PRIVATE_KEY_PATH,
+        expireTime: time
+    };
     var signedUrl;
-    if(options){
-        if(options.type === "prefix"){
-            signedUrl  = cf.getSignedUrl(url + "/"+ options.value + file, cfOptions);
-        }else if (options.type === "suffix") {
-            signedUrl  = cf.getSignedUrl(url + "/" + file + options.value, cfOptions);
-        }else{
-            signedUrl  = cf.getSignedUrl(url + "/" + file , cfOptions);
+    if (options) {
+        if (options.type === "prefix") {
+            signedUrl = cf.getSignedUrl(url + "/" + options.value + file, cfOptions);
+        } else if (options.type === "suffix") {
+            signedUrl = cf.getSignedUrl(url + "/" + file + options.value, cfOptions);
+        } else {
+            signedUrl = cf.getSignedUrl(url + "/" + file, cfOptions);
         }
-    }else {
-        signedUrl = cf.getSignedUrl(url + "/" + file , cfOptions);
+    } else {
+        signedUrl = cf.getSignedUrl(url + "/" + file, cfOptions);
     }
     return signedUrl;
 };
@@ -224,20 +310,37 @@ var modifyContainerUpload = function(app, Container, config, helper, packageObj,
                     if (err) {
                         next(err);
                     } else {
+                        console.log(data.result.files.file);
+                        var name = data.result.files.file[0].name;
+                        var container = data.result.files.file[0].container;
+                        //check if the container has amazon cdn..
+                        //Now adding the url with the file...
 
-                        //console.log(data);
-                        persistentModel.create({
-                            name: data.result.files.file[0].name,
-                            container: data.result.files.file[0].container
-                                //url: CONTAINERS_URL+fileInfo.container+'/download/'+fileInfo.name
-                        }, function(err, obj) {
-                            if (err) {
-                                ctx.res.status(500).send("Error uploading image");
-                            } else {
-                                console.log("Successfully uploaded with thumbnail to the server..");
-                                ctx.res.status(201).send(obj);
+                        var FileModel = packageObj.fileDefaultModel;
+                        FileModel = app.models[FileModel];
+                        var options = {
+                            type: "prefix",
+                            value: "small_"
+                        };
+                        FileModel.getUnsignedUrl (container, name, options, function(err, url)  {
+                            if(err){
+                                return ctx.res.status(500).send(err);
                             }
-                            //next();
+                            console.log(url);
+                            persistentModel.create({
+                                name: name,
+                                container: container,
+                                url: url
+                            }, function(err, obj) {
+                                if (err) {
+                                    console.log("Error occured");
+                                    ctx.res.status(500).send(err);
+                                } else {
+                                    console.log("Successfully uploaded with thumbnail to the server..");
+                                    ctx.res.status(201).send(obj);
+                                }
+                                //next();
+                            });
                         });
                     }
                 });
@@ -270,7 +373,7 @@ var handler = function(app, provider, req, res, config, options, cb) {
 
     var fields = {};
     var files = [];
-    console.log("Inside handler..");
+    //console.log("Inside handler..");
 
     form
         .on('field', function(field, value) {
@@ -280,17 +383,14 @@ var handler = function(app, provider, req, res, config, options, cb) {
 
             var fileName = fileHelper.renameFile(file, req);
             uploadToCloud(app, file, fields.container, res, req, fileName, config, cb);
-            //Return result asyns..
-            //TODO check this possible bug res is getting send before callback..
-            //Sending the result fast..
-            //Dont wait for image to get upload.
+
             //TODO HERE ALWAYS ONLY FILE IS GETTING SEND CHECK FOR BUG FIXING..
             //SENDING RESPONCE ASSUMNG FILE IS ALWAYS UPLOADED TO SERVER..
             var fileArr = [];
 
             fileArr.push({
                 name: fileName,
-                container: fields.container
+                container: fields.container || config.defaultContainer || imagerConfig.storage.S3.bucket
             });
             var data = {
                 result: {
@@ -372,14 +472,15 @@ var uploadToCloud = function(app, path, container, res, req, fileName, config, c
 
             } else {
                 console.log("Successfully saved to the amazon server..");
-                var fileArr = [];
+                /*var fileArr = [];
                 for (var i = 0; i < files.length; i++) {
                     //Preparing the order object..
+
                     fileArr.push({
                         name: files[i],
-                        container: container
+                        container: imagerConfig.storage.S3.bucket
                     });
-                }
+                }*/
 
 
             }
