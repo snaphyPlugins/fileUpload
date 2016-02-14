@@ -4,11 +4,16 @@ var Imager = require('imager');
 var imagerConfig = require("./settings/imagerConfig");
 var fs = require("fs");
 var fileHelper = require('./helper');
+var cf = require('aws-cloudfront-sign');
+var path = require("path");
+var PRIVATE_KEY_PATH = path.join(__dirname + '/settings/pk-APKAITJKBXGC5DPI526Q.pem');
 
 //Constructor for loading amazon image s3 and cloud front..
 var init = function(server, databaseObj, helper, packageObj) {
     //run a loop of config and start defiging methods for each settings..
     var configList = packageObj.config;
+    //Now add generate url method..
+    generateSignedUrl(server, databaseObj, helper, packageObj);
     configList.forEach(function(config) {
         loadConfig(config, server, databaseObj, helper, packageObj);
 
@@ -24,9 +29,8 @@ var loadConfig = function(config, app, databaseObj, helper, packageObj) {
     var PersistentModel = app.models[config.fileModel];
     //Add container remote methods
     modifyContainerUpload(app, Container, config, helper, packageObj, PersistentModel);
-    //link here  with all the methods of the container..
-    //now attach upload method...
-    //attachUploadMethod(app, PersistentModel, Container, config, helper, packageObj);
+
+
 };
 
 var attachUploadMethod = function(app, persistentModel, containerModel, config, helper, packageObj) {
@@ -95,6 +99,113 @@ var attachUploadMethod = function(app, persistentModel, containerModel, config, 
         }
     );
 };
+
+
+
+//Add get url methods for the basic models..also generateSignedApk for cdn containers automatically..
+var generateSignedUrl = function(server, databaseObj, helper, packageObj){
+    var app = server;
+    var FileModel = packageObj.fileDefaultModel;
+    var FileModel = app.models[FileModel];
+    //Options accepts suffix or prefix like -original, -medium, -thumb, -original
+    FileModel.getUrl = function(container, file, options, callback){
+        var app = this.app;
+        var signedUrl = "";
+        try{
+            if(packageObj.cdn){
+                for( var provider in packageObj.cdn){
+                    if(packageObj.cdn.hasOwnProperty(provider)){
+                        var givedContainer = packageObj.cdn[provider].container;
+                        if(givedContainer === container){
+                            if(provider === "amazon"){
+                                signedUrl = generateAmazonSignedUrl(app, file, options, packageObj.cdn[provider].keyPairId, packageObj.cdn[provider].url);
+                            }else if (provider === "rackspace") {
+                                //TODO DO IT LATER..
+                                //
+                                //
+                            }
+                            else{
+                                //do nothing...
+
+                            }
+
+                        }
+                    }
+                }//for loop.
+            }
+        }
+        catch(err){
+            //return error..
+            return callback(err);
+        }
+
+        var defaultUrl;
+
+        if(options){
+            if(options.type === "prefix"){
+                defaultUrl  = "/api/containers/" + container +  "/download/" + options.value + file;
+            }else if (options.type === "suffix") {
+                defaultUrl  = "/api/containers/" + container +  "/download/" +  file + options.value;
+            }else{
+                //else return normal url ..
+                defaultUrl =  "/api/containers/" + container +  "/download/" + file;
+            }
+        }else {
+            //else return normal url ..
+            defaultUrl =  "/api/containers/" + container +  "/download/" + file;
+        }
+
+
+
+        return callback(null, {
+            defaultUrl: defaultUrl,
+            signedUrl: signedUrl
+        });
+    };
+
+
+    FileModel.remoteMethod(
+        'getUrl',{
+            'description': "Get download url for the file. Also generates signed url automatically if provided.",
+            accepts: [{arg: 'container', type: 'string'}, {arg: 'file', type: 'string'}, {arg: 'options', type: "object"}],
+            returns: {
+                arg: 'url',
+                type: 'object',
+                root: true
+            }
+        }
+    );
+
+};
+
+
+/**
+ * Generate Amazon Cloud Front Signed URL.
+ * @param  {[type]} app       [description]
+ * @param  {[type]} container [description]
+ * @param  {[type]} file      [description]
+ * @param  {[type]} options   {type:"prefix||suffix", value: "thumb-"|| "medium_" etc}
+ * @param  {[type]} keypairId [description]
+ * @param  {[type]} url       [description]
+ * @return {[type]}           [description]
+ */
+var generateAmazonSignedUrl = function(app, file, options, keypairId, url){
+    var cfOptions = {keypairId: keypairId, privateKeyPath: PRIVATE_KEY_PATH};
+    var signedUrl;
+    if(options){
+        if(options.type === "prefix"){
+            signedUrl  = cf.getSignedUrl(url + "/"+ options.value + file, cfOptions);
+        }else if (options.type === "suffix") {
+            signedUrl  = cf.getSignedUrl(url + "/" + file + options.value, cfOptions);
+        }else{
+            signedUrl  = cf.getSignedUrl(url + "/" + file , cfOptions);
+        }
+    }else {
+        signedUrl = cf.getSignedUrl(url + "/" + file , cfOptions);
+    }
+    return signedUrl;
+};
+
 
 
 
