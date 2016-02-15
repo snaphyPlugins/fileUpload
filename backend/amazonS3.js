@@ -337,7 +337,7 @@ var modifyContainerUpload = function(app, Container, config, helper, packageObj,
                                     ctx.res.status(500).send(err);
                                 } else {
                                     console.log("Successfully uploaded with thumbnail to the server..");
-                                    ctx.res.status(201).send(obj);
+                                    return ctx.res.send(obj);
                                 }
                                 //next();
                             });
@@ -445,10 +445,10 @@ var uploadToCloud = function(app, path, container, res, req, fileName, config, c
                 extension = extension[1];
             } else {
 
-                return callback(new Error("Error: only image type is permitted"));
+                return console.error(new Error("Error: only image type is permitted"));
             }
         } catch (err) {
-            return callback(new Error("Error: getting extension of the file"));
+            return console.error(err);
         }
 
         if (!extension || extension === 'jpeg') {
@@ -468,7 +468,7 @@ var uploadToCloud = function(app, path, container, res, req, fileName, config, c
         imager.upload([path], function(err, cdnUri, files) {
             // do your stuff
             if (err) {
-                return callback(new Error("Error: Saving image to amazon server"));
+                return console.error(err);
 
             } else {
                 console.log("Successfully saved to the amazon server..");
