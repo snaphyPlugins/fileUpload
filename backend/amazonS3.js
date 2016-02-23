@@ -380,7 +380,6 @@ var handler = function(app, provider, req, res, config, options, cb) {
             fields[field] = value;
         })
         .on('file', function(field, file) {
-
             var fileName = fileHelper.renameFile(file, req);
             uploadToCloud(app, file, fields.container, res, req, fileName, config, cb);
 
@@ -438,22 +437,7 @@ var uploadImageToS3 = function(app, req, res, config, options, cb) {
 var uploadToCloud = function(app, path, container, res, req, fileName, config, callback) {
         var clientFileName = path.name;
         imagerConfig.storage.S3.bucket = container || config.defaultContainer || imagerConfig.storage.S3.bucket;
-        var pattern = /^image\/(.+)$/;
-        var extension = pattern.exec(path.type);
-        try {
-            if (extension.length) {
-                extension = extension[1];
-            } else {
 
-                return console.error(new Error("Error: only image type is permitted"));
-            }
-        } catch (err) {
-            return console.error(err);
-        }
-
-        if (!extension || extension === 'jpeg') {
-            extension = "jpg";
-        }
 
         //var fileName = fileHelper.renameFile(path, req);
 
@@ -472,17 +456,6 @@ var uploadToCloud = function(app, path, container, res, req, fileName, config, c
 
             } else {
                 console.log("Successfully saved to the amazon server..");
-                /*var fileArr = [];
-                for (var i = 0; i < files.length; i++) {
-                    //Preparing the order object..
-
-                    fileArr.push({
-                        name: files[i],
-                        container: imagerConfig.storage.S3.bucket
-                    });
-                }*/
-
-
             }
 
             //TODO Now deleting the original file..
