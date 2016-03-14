@@ -74,6 +74,7 @@ var createContainer = function(app, containerName, config) {
         name: containerName
     }, function(err, containerObj) {
         if (err) {
+            //console.error(err);
             console.error("Cannot create container ");
             return false;
         }

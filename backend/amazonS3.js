@@ -6,7 +6,7 @@ var fs = require("fs");
 var fileHelper = require('./helper');
 var cf = require('aws-cloudfront-sign');
 var path = require("path");
-var PRIVATE_KEY_PATH = path.join(__dirname + '/settings/pk-APKAITJKBXGC5DPI526Q.pem');
+var PRIVATE_KEY_PATH = path.join(__dirname + '/settings/pk-APKAJPBZYB4TNKVSMH6Q.pem');
 
 //Constructor for loading amazon image s3 and cloud front..
 var init = function(server, databaseObj, helper, packageObj) {
@@ -166,12 +166,14 @@ var generateUnsignedUrl = function(server, databaseObj, helper, packageObj) {
 
 
 
+
+
         return callback(null, {
             defaultUrl: defaultUrl,
             unSignedUrl: unSignedUrl
         });
     };
-}
+};
 
 
 
@@ -313,6 +315,7 @@ var modifyContainerUpload = function(app, Container, config, helper, packageObj,
                         console.log(data.result.files.file);
                         var name = data.result.files.file[0].name;
                         var container = data.result.files.file[0].container;
+                        //Change it later..
                         //check if the container has amazon cdn..
                         //Now adding the url with the file...
 
@@ -448,7 +451,7 @@ var uploadToCloud = function(app, path, container, res, req, fileName, config, c
 
 
 
-        var imager = new Imager(imagerConfig, "S3") // or 'S3' for amazon
+        var imager = new Imager(imagerConfig, "S3");// or 'S3' for amazon
         imager.upload([path], function(err, cdnUri, files) {
             // do your stuff
             if (err) {
@@ -461,7 +464,7 @@ var uploadToCloud = function(app, path, container, res, req, fileName, config, c
             //TODO Now deleting the original file..
             deleteLocalFile(path.path);
         }, 'items');
-    } //uploadToCloud..
+    }; //uploadToCloud..
 
 
 

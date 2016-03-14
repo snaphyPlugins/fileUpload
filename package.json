@@ -26,9 +26,9 @@
 
     "cdn": {
         "amazon": {
-            "container": "gruberr-recipes",
-            "keyPairId": "APKAITJKBXGC5DPI526Q",
-            "url": "http://d2ppet2ho4r908.cloudfront.net"
+            "container": "gruberr-recipes-snaphy",
+            "keyPairId": "APKAJPBZYB4TNKVSMH6Q",
+            "url": "http://d24x19nnd444yq.cloudfront.net"
         }
     },
     "fileDefaultModel": "AmazonImage",
@@ -36,9 +36,9 @@
         "fileModel": "AmazonImage",
         "containerModel": "container",
         "fileDataSource": "Image",
-        "defaultContainer": "gruberr-recipes",
+        "defaultContainer": "gruberr-recipes-snaphy",
         "createInitContainer": [
-            "gruberr-recipes",
+            "gruberr-recipes-snaphy",
             "gruberr-profile"
         ],
         "fileProp": {
@@ -58,7 +58,7 @@
         "fileType": "image",
         "containerModel": "container",
         "createInitContainer": [
-            "gruberr-recipes",
+            "gruberr-recipes-snaphy",
             "gruberr-profile"
         ],
         "imageProp": {
