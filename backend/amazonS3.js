@@ -42,6 +42,7 @@ var attachUploadMethod = function(app, persistentModel, containerModel, config, 
         ctx.req.params.container = config.defaultContainer;
         //Now call the main upload method..of container
         containerModel.upload(ctx.req, ctx.result, options, function(err, fileObj) {
+            ctx.req.connection.setTimeout(12000);
             if (err) {
                 console.log("Error uploading");
                 cb(err);
@@ -303,6 +304,7 @@ var modifyContainerUpload = function(app, Container, config, helper, packageObj,
     var FileDataSource = config.fileDataSource;
     var settings = app.dataSources[FileDataSource].settings;
     Container.beforeRemote('upload', function(ctx, res, next) {
+        ctx.req.connection.setTimeout(12000);
         if (settings.provider === 'filesystem') {
             //Do settings for doing additional things to file system..
             next();
@@ -447,7 +449,7 @@ var uploadToCloud = function(app, path, container, res, req, fileName, config, c
         //Now add the rename function..
         imagerConfig.variants.items.rename = function() {
             return fileName;
-        }
+        };
 
 
 

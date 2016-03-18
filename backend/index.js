@@ -100,16 +100,16 @@ var getFilename = function(app, config) {
         var pattern = /^image\/.+$/;
         var value = pattern.test(file.type);
         if (value) {
-            setFileName(file);
+            setFileName(file, req);
         } else {
             res.status(403).send("FileTypeError: Only File of Image type is supported right.");
             return false;
         }
     };
-}
+};
 
 
-function setFileName(file){
+function setFileName(file, req){
     var fileExtension = file.name.split('.').pop();
     //var container = file.container;
     var time = new Date().getTime();
@@ -330,4 +330,4 @@ return {
 }
 
 
-} //module.exports
+}; //module.exports
