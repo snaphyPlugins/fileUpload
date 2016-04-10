@@ -2,8 +2,8 @@ var renameFile = function (file, req){
     var fileExtension = file.name.split(/\.$/).pop();
     //var container = file.container;
     var time = new Date().getTime();
-    //var query = req.query;
-    var userId = req.accessToken.userId;
+    var userId = getUserId();
+    
     var UUID = guid();
     //Now preparing the file name..
     //customerId_time_orderId.extension
@@ -35,6 +35,21 @@ var renameFile = function (file, req){
 
     //And the file name will be saved as defined..
     return NewFileName;
+}
+
+
+function getUserId(){
+    var userId;
+    try{
+        //var query = req.query;
+        userId = req.accessToken.userId;
+    }
+    catch(err){
+        userId = guid();
+        console.error("Got error accessing user information from accesstoken in helper.js file in fileUpload");
+    }
+    
+    return userId;
 }
 
 
