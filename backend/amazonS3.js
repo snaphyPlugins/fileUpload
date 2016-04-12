@@ -6,7 +6,7 @@ var fs = require("fs");
 var fileHelper = require('./helper');
 var cf = require('aws-cloudfront-sign');
 var path = require("path");
-var PRIVATE_KEY_PATH = path.join(__dirname + '/settings/pk-APKAJPBZYB4TNKVSMH6Q.pem');
+var PRIVATE_KEY_PATH = path.join(__dirname + '/settings/pk-APKAISPA2DTYFGB3GNCA.pem');
 
 //Constructor for loading amazon image s3 and cloud front..
 var init = function(server, databaseObj, helper, packageObj) {

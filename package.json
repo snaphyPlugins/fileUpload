@@ -27,8 +27,8 @@
     "cdn": {
         "amazon": {
             "container": "gruberr-recipes-snaphy",
-            "keyPairId": "APKAJPBZYB4TNKVSMH6Q",
-            "url": "http://d24x19nnd444yq.cloudfront.net"
+            "keyPairId": "APKAISPA2DTYFGB3GNCA",
+            "url": "http://d3me3ajy35cxbg.cloudfront.net"
         }
     },
     "fileDefaultModel": "AmazonImage",

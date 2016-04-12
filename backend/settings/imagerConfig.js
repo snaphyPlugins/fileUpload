@@ -13,8 +13,8 @@ module.exports = {
 
     storage: {
         S3: {
-            key: 'AKIAJJF4NWPYZOH3E5UQ',
-            secret: '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',
+            key: 'AKIAJZRN3M5RDZL2IR2A',
+            secret: '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',
             bucket: 'gruberr-recipes-snaphy',
             storageClass: 'REDUCED_REDUNDANCY',
             secure: false, // (optional) if your BUCKET_NAME contains dot(s), set this to false. Default is `true`
